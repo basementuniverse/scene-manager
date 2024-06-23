@@ -48,13 +48,13 @@ export default class SceneManager {
   /**
    * Push a scene onto the scene stack and start transitioning in
    */
-  public static push(scene: Scene) {
+  public static push(scene: Scene, ...args: any[]) {
     const instance = SceneManager.getInstance();
 
     instance.scenes.push(scene);
 
     // Initialise the scene and start the transition
-    scene.initialise();
+    scene.initialise(...args);
     scene.transitionIn();
     return scene;
   }
@@ -152,6 +152,17 @@ export default class SceneManager {
       scene.draw(context, ...args);
     });
   }
+
+  /**
+   * Let all scenes know that a resize event has occurred
+   */
+  public static resize(width: number, height: number) {
+    const instance = SceneManager.getInstance();
+
+    for (const scene of instance.scenes) {
+      scene.resize?.(width, height);
+    }
+  }
 }
 
 export abstract class Scene {
@@ -210,9 +221,11 @@ export abstract class Scene {
     }
   }
 
-  public abstract initialise(): void;
+  public abstract initialise(...args: any[]): void;
 
   public abstract update(dt: number, ...args: any[]): void;
 
   public abstract draw(context: CanvasRenderingContext2D, ...args: any[]): void;
+
+  public resize?(width: number, height: number): void;
 }

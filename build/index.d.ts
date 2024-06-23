@@ -25,7 +25,7 @@ export default class SceneManager {
     /**
      * Push a scene onto the scene stack and start transitioning in
      */
-    static push(scene: Scene): Scene;
+    static push(scene: Scene, ...args: any[]): Scene;
     /**
      * Remove a scene from the scene stack after transitioning out
      */
@@ -42,6 +42,10 @@ export default class SceneManager {
      * Render scenes on the screen
      */
     static draw(context: CanvasRenderingContext2D, ...args: any[]): void;
+    /**
+     * Let all scenes know that a resize event has occurred
+     */
+    static resize(width: number, height: number): void;
 }
 export declare abstract class Scene {
     private readonly defaultOptions;
@@ -55,7 +59,8 @@ export declare abstract class Scene {
     transitionIn(): void;
     transitionOut(): void;
     updateTransition(dt: number): void;
-    abstract initialise(): void;
+    abstract initialise(...args: any[]): void;
     abstract update(dt: number, ...args: any[]): void;
     abstract draw(context: CanvasRenderingContext2D, ...args: any[]): void;
+    resize?(width: number, height: number): void;
 }
