@@ -2,6 +2,12 @@
 
 A component for managing a stack of scenes in a game.
 
+## Installation
+
+```bash
+npm install @basementuniverse/scene-manager
+```
+
 ## How to use
 
 Initialise the scene manager before use:
@@ -99,11 +105,3 @@ const myScene = new Scene(options);
 | --- | --- | --- | --- |
 | `transitionTime` | `number` | `2` | The number of seconds it takes to transition in/out |
 | `transparent` | `boolean` | `true` | If true, this scene will show other scenes below it in the stack |
-
-## Other components
-
-* [Camera](https://www.npmjs.com/package/@basementuniverse/camera)
-* [Content Manager](https://www.npmjs.com/package/@basementuniverse/content-manager)
-* [Debug](https://www.npmjs.com/package/@basementuniverse/debug)
-* [Input Manager](https://www.npmjs.com/package/@basementuniverse/input-manager)
-* [Scene Manager](https://www.npmjs.com/package/@basementuniverse/scene-manager)
