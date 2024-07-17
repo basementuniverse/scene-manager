@@ -11,9 +11,9 @@ export type SceneOptions = {
 };
 
 export enum SceneTransitionState {
-  In,
-  Out,
-  None,
+  In = 'in',
+  Out = 'out',
+  None = 'none',
 }
 
 function clamp(a: number, min = 0, max = 1) {

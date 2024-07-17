@@ -9,9 +9,9 @@ export type SceneOptions = {
     transparent: boolean;
 };
 export declare enum SceneTransitionState {
-    In = 0,
-    Out = 1,
-    None = 2
+    In = "in",
+    Out = "out",
+    None = "none"
 }
 export default class SceneManager {
     private static instance;
