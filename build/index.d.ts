@@ -7,6 +7,14 @@ export type SceneOptions = {
      * True if this scene shows the scene below it in the stack
      */
     transparent: boolean;
+    /**
+     * Optional callback, called when the scene has finished transitioning in
+     */
+    onTransitionedIn?: () => void;
+    /**
+     * Optional callback, called when the scene has finished transitioning out
+     */
+    onTransitionedOut?: () => void;
 };
 export declare enum SceneTransitionState {
     In = "in",
@@ -54,6 +62,8 @@ export declare abstract class Scene {
     transitionTime: number;
     transparent: boolean;
     disposed: boolean;
+    private onTransitionedIn?;
+    private onTransitionedOut?;
     constructor(options?: Partial<SceneOptions>);
     dispose(): void;
     transitionIn(): void;

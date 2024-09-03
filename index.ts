@@ -8,6 +8,16 @@ export type SceneOptions = {
    * True if this scene shows the scene below it in the stack
    */
   transparent: boolean;
+
+  /**
+   * Optional callback, called when the scene has finished transitioning in
+   */
+  onTransitionedIn?: () => void;
+
+  /**
+   * Optional callback, called when the scene has finished transitioning out
+   */
+  onTransitionedOut?: () => void;
 };
 
 export enum SceneTransitionState {
@@ -181,10 +191,16 @@ export abstract class Scene {
 
   public disposed: boolean = false;
 
+  private onTransitionedIn?: () => void;
+
+  private onTransitionedOut?: () => void;
+
   public constructor(options?: Partial<SceneOptions>) {
     const actualOptions = Object.assign({}, this.defaultOptions, options);
     this.transitionTime = actualOptions.transitionTime;
     this.transparent = actualOptions.transparent;
+    this.onTransitionedIn = actualOptions.onTransitionedIn;
+    this.onTransitionedOut = actualOptions.onTransitionedOut;
   }
 
   public dispose() {
@@ -208,6 +224,7 @@ export abstract class Scene {
         this.transitionAmount = clamp(this.transitionAmount + amount);
       } else {
         this.transitionState = SceneTransitionState.None;
+        this.onTransitionedIn?.();
       }
     }
 
@@ -216,7 +233,9 @@ export abstract class Scene {
       if (this.transitionAmount > 0) {
         this.transitionAmount = clamp(this.transitionAmount - amount);
       } else {
+        this.transitionState = SceneTransitionState.None;
         this.dispose();
+        this.onTransitionedOut?.();
       }
     }
   }

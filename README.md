@@ -105,3 +105,5 @@ const myScene = new Scene(options);
 | --- | --- | --- | --- |
 | `transitionTime` | `number` | `2` | The number of seconds it takes to transition in/out |
 | `transparent` | `boolean` | `true` | If true, this scene will show other scenes below it in the stack |
+| `onTransitionedIn` | `() => void` | `undefined` | Called when the scene has fully transitioned in |
+| `onTransitionedOut` | `() => void` | `undefined` | Called when the scene has fully transitioned out |
