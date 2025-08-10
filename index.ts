@@ -27,7 +27,7 @@ export enum SceneTransitionState {
 }
 
 function clamp(a: number, min = 0, max = 1) {
-  return a < min ? min : (a > max ? max : a);
+  return a < min ? min : a > max ? max : a;
 }
 
 export default class SceneManager {
@@ -118,7 +118,7 @@ export default class SceneManager {
 
     if (instance.scenes.length > 0) {
       // Only update the top-most scene that isn't currently transitioning out
-      for (let i = instance.scenes.length; i--;) {
+      for (let i = instance.scenes.length; i--; ) {
         if (instance.scenes[i].transitionState !== SceneTransitionState.Out) {
           instance.scenes[i].update(dt, ...args);
           break;
@@ -143,7 +143,7 @@ export default class SceneManager {
 
     // Figure out which scenes we need to draw
     const drawList: Scene[] = [];
-    for (let i = instance.scenes.length; i--;) {
+    for (let i = instance.scenes.length; i--; ) {
       const scene = instance.scenes[i];
       drawList.push(scene);
 
