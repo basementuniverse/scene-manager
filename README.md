@@ -8,6 +8,15 @@ A component for managing a stack of scenes in a game.
 npm install @basementuniverse/scene-manager
 ```
 
+For direct browser usage, include the UMD build with a script tag:
+
+```html
+<script src="build/index.js"></script>
+```
+
+The build exposes the package's main class as the `BasementUniverseSceneManager` browser
+global. It does not add each export directly to `window`.
+
 ## How to use
 
 Initialise the scene manager before use:
@@ -16,6 +25,23 @@ Initialise the scene manager before use:
 import SceneManager from '@basementuniverse/scene-manager';
 
 SceneManager.initialise();
+```
+
+When using the library directly from a browser script, use the
+`BasementUniverseSceneManager` global:
+
+```html
+<script src="build/index.js"></script>
+<script>
+  BasementUniverseSceneManager.initialise();
+
+  // The Scene base class lives on the same namespace
+  class MyScene extends BasementUniverseSceneManager.Scene {
+    // ...
+  }
+
+  BasementUniverseSceneManager.push(new MyScene());
+</script>
 ```
 
 Update and draw the scene manager:

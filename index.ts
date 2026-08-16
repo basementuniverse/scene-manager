@@ -1,39 +1,11 @@
-export type SceneOptions = {
-  /**
-   * The amount of time it takes to transition in/out, in seconds
-   */
-  transitionTime: number;
-
-  /**
-   * True if this scene shows the scene below it in the stack
-   */
-  transparent: boolean;
-
-  /**
-   * Optional callback, called when the scene has finished transitioning in
-   */
-  onTransitionedIn?: () => void;
-
-  /**
-   * Optional callback, called when the scene has finished transitioning out
-   */
-  onTransitionedOut?: () => void;
-};
-
-export enum SceneTransitionState {
-  In = 'in',
-  Out = 'out',
-  None = 'none',
-}
-
 function clamp(a: number, min = 0, max = 1) {
   return a < min ? min : a > max ? max : a;
 }
 
-export default class SceneManager {
+class SceneManager {
   private static instance: SceneManager;
 
-  private scenes: Scene[] = [];
+  private scenes: SceneManager.Scene[] = [];
 
   private constructor() {}
 
@@ -58,7 +30,7 @@ export default class SceneManager {
   /**
    * Push a scene onto the scene stack and start transitioning in
    */
-  public static push(scene: Scene, ...args: any[]) {
+  public static push(scene: SceneManager.Scene, ...args: any[]) {
     const instance = SceneManager.getInstance();
 
     instance.scenes.push(scene);
@@ -72,7 +44,7 @@ export default class SceneManager {
   /**
    * Remove a scene from the scene stack after transitioning out
    */
-  public static pop(): Scene | undefined {
+  public static pop(): SceneManager.Scene | undefined {
     const instance = SceneManager.getInstance();
 
     if (instance.scenes.length > 0) {
@@ -81,7 +53,7 @@ export default class SceneManager {
       // Remove the top-most scene that isn't currently transitioning out
       while (
         last > 0 &&
-        instance.scenes[last].transitionState === SceneTransitionState.Out
+        instance.scenes[last].transitionState === SceneManager.SceneTransitionState.Out
       ) {
         last--;
       }
@@ -104,7 +76,7 @@ export default class SceneManager {
     const instance = SceneManager.getInstance();
 
     instance.scenes.forEach(scene => {
-      if (scene.transitionState !== SceneTransitionState.Out) {
+      if (scene.transitionState !== SceneManager.SceneTransitionState.Out) {
         scene.transitionOut();
       }
     });
@@ -119,7 +91,7 @@ export default class SceneManager {
     if (instance.scenes.length > 0) {
       // Only update the top-most scene that isn't currently transitioning out
       for (let i = instance.scenes.length; i--; ) {
-        if (instance.scenes[i].transitionState !== SceneTransitionState.Out) {
+        if (instance.scenes[i].transitionState !== SceneManager.SceneTransitionState.Out) {
           instance.scenes[i].update(dt, ...args);
           break;
         }
@@ -142,7 +114,7 @@ export default class SceneManager {
     const instance = SceneManager.getInstance();
 
     // Figure out which scenes we need to draw
-    const drawList: Scene[] = [];
+    const drawList: SceneManager.Scene[] = [];
     for (let i = instance.scenes.length; i--; ) {
       const scene = instance.scenes[i];
       drawList.push(scene);
@@ -151,7 +123,7 @@ export default class SceneManager {
       // (we might want to show the scene underneath if we're doing e.g. a fade)
       if (
         !scene.transparent &&
-        scene.transitionState === SceneTransitionState.None
+        scene.transitionState === SceneManager.SceneTransitionState.None
       ) {
         break;
       }
@@ -175,76 +147,108 @@ export default class SceneManager {
   }
 }
 
-export abstract class Scene {
-  private readonly defaultOptions: SceneOptions = {
-    transitionTime: 2,
-    transparent: true,
+namespace SceneManager {
+  export type SceneOptions = {
+    /**
+     * The amount of time it takes to transition in/out, in seconds
+     */
+    transitionTime: number;
+
+    /**
+     * True if this scene shows the scene below it in the stack
+     */
+    transparent: boolean;
+
+    /**
+     * Optional callback, called when the scene has finished transitioning in
+     */
+    onTransitionedIn?: () => void;
+
+    /**
+     * Optional callback, called when the scene has finished transitioning out
+     */
+    onTransitionedOut?: () => void;
   };
 
-  public transitionState: SceneTransitionState = SceneTransitionState.None;
-
-  public transitionAmount: number = 0;
-
-  public transitionTime: number = 0;
-
-  public transparent: boolean = false;
-
-  public disposed: boolean = false;
-
-  private onTransitionedIn?: () => void;
-
-  private onTransitionedOut?: () => void;
-
-  public constructor(options?: Partial<SceneOptions>) {
-    const actualOptions = Object.assign({}, this.defaultOptions, options);
-    this.transitionTime = actualOptions.transitionTime;
-    this.transparent = actualOptions.transparent;
-    this.onTransitionedIn = actualOptions.onTransitionedIn;
-    this.onTransitionedOut = actualOptions.onTransitionedOut;
+  export enum SceneTransitionState {
+    In = 'in',
+    Out = 'out',
+    None = 'none',
   }
 
-  public dispose() {
-    this.disposed = true;
-  }
+  export abstract class Scene {
+    private readonly defaultOptions: SceneOptions = {
+      transitionTime: 2,
+      transparent: true,
+    };
 
-  public transitionIn() {
-    this.transitionState = SceneTransitionState.In;
-  }
+    public transitionState: SceneTransitionState = SceneTransitionState.None;
 
-  public transitionOut() {
-    this.transitionState = SceneTransitionState.Out;
-  }
+    public transitionAmount: number = 0;
 
-  public updateTransition(dt: number) {
-    const amount: number = dt / this.transitionTime;
+    public transitionTime: number = 0;
 
-    // Transitioning in
-    if (this.transitionState === SceneTransitionState.In) {
-      if (this.transitionAmount < 1) {
-        this.transitionAmount = clamp(this.transitionAmount + amount);
-      } else {
-        this.transitionState = SceneTransitionState.None;
-        this.onTransitionedIn?.();
+    public transparent: boolean = false;
+
+    public disposed: boolean = false;
+
+    private onTransitionedIn?: () => void;
+
+    private onTransitionedOut?: () => void;
+
+    public constructor(options?: Partial<SceneOptions>) {
+      const actualOptions = Object.assign({}, this.defaultOptions, options);
+      this.transitionTime = actualOptions.transitionTime;
+      this.transparent = actualOptions.transparent;
+      this.onTransitionedIn = actualOptions.onTransitionedIn;
+      this.onTransitionedOut = actualOptions.onTransitionedOut;
+    }
+
+    public dispose() {
+      this.disposed = true;
+    }
+
+    public transitionIn() {
+      this.transitionState = SceneTransitionState.In;
+    }
+
+    public transitionOut() {
+      this.transitionState = SceneTransitionState.Out;
+    }
+
+    public updateTransition(dt: number) {
+      const amount: number = dt / this.transitionTime;
+
+      // Transitioning in
+      if (this.transitionState === SceneTransitionState.In) {
+        if (this.transitionAmount < 1) {
+          this.transitionAmount = clamp(this.transitionAmount + amount);
+        } else {
+          this.transitionState = SceneTransitionState.None;
+          this.onTransitionedIn?.();
+        }
+      }
+
+      // Transitioning out
+      if (this.transitionState === SceneTransitionState.Out) {
+        if (this.transitionAmount > 0) {
+          this.transitionAmount = clamp(this.transitionAmount - amount);
+        } else {
+          this.transitionState = SceneTransitionState.None;
+          this.dispose();
+          this.onTransitionedOut?.();
+        }
       }
     }
 
-    // Transitioning out
-    if (this.transitionState === SceneTransitionState.Out) {
-      if (this.transitionAmount > 0) {
-        this.transitionAmount = clamp(this.transitionAmount - amount);
-      } else {
-        this.transitionState = SceneTransitionState.None;
-        this.dispose();
-        this.onTransitionedOut?.();
-      }
-    }
+    public abstract initialise(...args: any[]): void;
+
+    public abstract update(dt: number, ...args: any[]): void;
+
+    public abstract draw(context: CanvasRenderingContext2D, ...args: any[]): void;
+
+    public resize?(width: number, height: number): void;
   }
-
-  public abstract initialise(...args: any[]): void;
-
-  public abstract update(dt: number, ...args: any[]): void;
-
-  public abstract draw(context: CanvasRenderingContext2D, ...args: any[]): void;
-
-  public resize?(width: number, height: number): void;
 }
+
+export = SceneManager;

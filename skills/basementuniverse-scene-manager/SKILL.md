@@ -8,6 +8,14 @@ description: >
 
 Use this skill when working with `@basementuniverse/scene-manager` for game development.
 
+The package publishes a UMD build and uses `export =`, so the module *is* the
+main class. In bundlers such as webpack or Vite, use a default import from
+`@basementuniverse/scene-manager`; with CommonJS, `require()` returns the class
+directly (there is no `.default`). Nested types and enums are reachable through
+the merged namespace on that same name. When loading the build with a browser
+`<script>` tag, the class is available as the `BasementUniverseSceneManager` global.
+The package does not publish a separate native ESM build.
+
 ## When to Use This Skill
 
 - Implementing scene management in a TypeScript/JavaScript game
